@@ -1,484 +1,380 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Конструктор расчёта цены</title>
+<title>Конструктор расчёта цены — v3</title>
 <style>
-  body{font-family:Arial,Helvetica,sans-serif;font-size:15px;margin:0;padding:10px;background:#f4f6f9;color:#222}
-  h1{font-size:22px;margin:10px 0 14px}
-  .card{background:#fff;border:1px solid #b9c6d8;border-radius:12px;padding:14px 16px;margin:0 0 16px}
-  .card h2{font-size:16px;margin:-14px -16px 12px;padding:8px 16px;background:#eef3fa;border-bottom:1px solid #b9c6d8;border-radius:12px 12px 0 0;color:#1a3a5c}
-  .grid{display:flex;flex-wrap:wrap;gap:10px 18px}
-  .fld{display:flex;flex-direction:column;min-width:150px}
-  .fld label{font-size:13px;margin-bottom:3px}
-  input,select{padding:5px 7px;border:1px solid #aaa;border-radius:5px;font-size:14px;box-sizing:border-box}
-  button{padding:7px 14px;border:1px solid #5b7ea6;border-radius:6px;background:#e7eff9;cursor:pointer;font-size:14px}
-  button:hover{background:#d6e4f5}
-  button.danger{border-color:#c0392b;background:#fdecea;color:#c0392b}
-  button.mini{padding:3px 8px;font-size:14px;line-height:1}
-  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
-  .step{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border:1px solid #d5dde8;border-radius:8px;padding:8px;background:#fafbfe;margin-bottom:8px}
-  .step .src,.step .op,.step .opd{flex:1 1 180px}
-  .step .num{width:110px}
-  .hint{color:#555;font-style:italic;font-size:13px}
-  table{border-collapse:collapse;width:100%;font-size:14px}
-  th,td{border:1px solid #b9c6d8;padding:5px 8px;text-align:left}
-  th{background:#eef3fa}
-  td.num,th.num{text-align:right}
-  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#2c3e50;color:#fff;padding:10px 18px;border-radius:8px;display:none;z-index:10;font-size:14px}
-  details.instr{background:#fff;border:1px solid #b9c6d8;border-radius:12px;padding:10px 16px;margin:0 0 16px}
-  details.instr summary{cursor:pointer;font-weight:bold;color:#1a3a5c;font-size:16px}
-  details.instr h3{font-size:14px;margin:10px 0 4px;color:#1a3a5c}
-  details.instr li{margin:3px 0}
-  .introw{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0}
-  .introw input.name{width:230px}
-  .introw input.val{width:130px;text-align:right}
-  .err{color:#c0392b}
-  .ok{color:#1e7d32}
+ body{font-family:'Segoe UI',Arial,sans-serif;max-width:960px;margin:14px auto;padding:0 12px;background:#fff;color:#111;font-size:14px}
+ h2{color:#0b3d77}
+ fieldset{border:2px solid #1a4d8f;border-radius:18px;padding:8px 14px 12px;margin-bottom:14px}
+ legend{color:#0b3d77;font-weight:600;padding:0 6px}
+ .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:8px 0}
+ label.f{display:flex;flex-direction:column;font-size:12px;gap:3px}
+ input[type=number],input[type=text],select{border:1px solid #444;border-radius:4px;padding:4px 6px;font-size:13px}
+ input[type=number]{width:110px}
+ button{border:1px solid #1a4d8f;background:#dbe8f7;color:#0b3d77;border-radius:6px;padding:5px 12px;font-size:13px;cursor:pointer}
+ button:hover{background:#c3d9f5}
+ .ic{padding:2px 8px}
+ .step{border:1px solid #9db9d9;border-radius:10px;padding:6px 8px;margin:7px 0;background:#f7faff}
+ .chk{font-size:12px;display:inline-flex;align-items:center;gap:4px}
+ select{max-width:210px}
+ table{border-collapse:collapse;width:100%;font-size:13px}
+ th,td{border:1px solid #777;padding:4px 6px}
+ th{background:#eef4fb}
+ .num{text-align:right}
+ .small{font-size:12px;color:#555}
+ .hint{color:#777;font-size:13px}
+ #itogBox{font-size:20px;font-weight:700;color:#0b3d77;margin:8px 0}
+ #toast{position:fixed;right:16px;bottom:16px;background:#1a4d8f;color:#fff;padding:10px 16px;border-radius:8px;display:none;max-width:420px;box-shadow:0 2px 10px rgba(0,0,0,.3);z-index:99}
 </style>
 </head>
 <body>
-<h1>КОНСТРУКТОР РАСЧЁТА ЦЕНЫ</h1>
+<h2>КОНСТРУКТОР РАСЧЁТА ЦЕНЫ <span class="small">v3</span></h2>
+<div class="hint">В шагах уже собран пример «Блэквуд» из техзадания — нажмите «Рассчитать» и сверьте итог (в примере из ТЗ: 23 337,28).</div>
 
-<details class="instr" open>
-<summary>Инструкция пользователя</summary>
-<h3>1. Исходные данные</h3>
-<ul>
-<li>Впиши <b>ПС, руб.</b>, <b>РТ, м.пог.</b> и <b>Цена м.пог., руб.</b> — нажми «Записать МС»: результат формулы (ПС + РТ × Цена м.пог.) / НДС, К встанет в поле «МС, руб.».</li>
-<li>В поле «МС, руб.» можно внести значение вручную, как и «СО, руб.» и «БЦ, руб.».</li>
-</ul>
-<h3>2. Шаги расчёта</h3>
-<ul>
-<li>«+ Добавить шаг»: выбери источник (исходное данное, результат предыдущего шага или сохранённое промежуточное значение), операцию (×, ÷, +, −, +%, −%) и операнд (коэффициент, сумму, процент, исходное данное, промежуточное значение или число).</li>
-<li>Галочка слева включает шаг в расчёт, ↑ и ↓ меняют порядок шагов, ✕ удаляет шаг.</li>
-</ul>
-<h3>3. Расчёт, итог и отношение</h3>
-<ul>
-<li>«Рассчитать» — строит историю по шагам и показывает Итог.</li>
-<li>Внизу выбери сохранённое значение — получишь коэффициент «Итог / значение».</li>
-</ul>
-<h3>4. Промежуточные значения</h3>
-<ul>
-<li>Отметь в шаге «сохранить в промеж.» — после расчёта появится «Промежуточный N». Имя можно переименовать прямо в списке (например, на «ФЗП» или «ТЗ») и дальше использовать в следующих шагах.</li>
-<li>«+ Запомнить промежуточное значение» — создаёт строку вручную, значение можно вписать руками.</li>
-<li>Пока страница открыта, значения сохранены; состояние страницы также автосохраняется в браузере.</li>
-</ul>
-<h3>5. Сценарии</h3>
-<ul>
-<li>«Сохранить сценарий» — под именем (например, «Блэквуд»); «Загрузить сценарий» — восстановить.</li>
-<li>«Экспорт JSON» — скачать файл сценария; «Импорт JSON» — загрузить на другом устройстве (компьютер ↔ телефон).</li>
-<li>«Сброс» — вернуть всё к значениям по умолчанию.</li>
-</ul>
-</details>
+<fieldset><legend>Исходные данные</legend>
+ <div class="row">
+  <label class="f">ПС, руб.<input id="src_PS" type="number" step="any" oninput="setNum('src','PS',this)"></label>
+  <label class="f">РТ, м.пог.<input id="src_RT" type="number" step="any" oninput="setNum('src','RT',this)"></label>
+  <label class="f">Цена м.пог., руб.<input id="src_PRICE" type="number" step="any" oninput="setNum('src','PRICE',this)"></label>
+  <label class="f">НДС, К<input id="src_NDS" type="number" step="any" oninput="setNum('src','NDS',this)"></label>
+  <button onclick="writeMS()">Записать МС</button>
+ </div>
+ <div class="row">
+  <label class="f">МС, руб.<input id="src_MS" type="number" step="any" oninput="setNum('src','MS',this)"></label>
+  <label class="f">СО, руб.<input id="src_SO" type="number" step="any" oninput="setNum('src','SO',this)"></label>
+  <label class="f">БЦ, руб.<input id="src_BC" type="number" step="any" oninput="setNum('src','BC',this)"></label>
+ </div>
+ <div class="hint">Записать МС: (ПС + РТ × Цена м.пог.) / НДС, К. Результат подставится в поле «МС, руб.» и попадёт в историю. Значение МС можно также ввести вручную.</div>
+</fieldset>
 
-<div class="card"><h2>Исходные данные</h2>
-  <div class="grid">
-    <div class="fld"><label>ПС, руб.</label><input type="number" step="any" data-in="ps"></div>
-    <div class="fld"><label>РТ, м.пог.</label><input type="number" step="any" data-in="rt"></div>
-    <div class="fld"><label>Цена м.пог., руб.</label><input type="number" step="any" data-in="price_m"></div>
-    <div class="fld"><label>НДС, К</label><input type="number" step="any" data-in="nds_k"></div>
-    <div class="fld"><label>&nbsp;</label><button id="btnMS">Записать МС</button></div>
-  </div>
-  <div class="grid" style="margin-top:10px">
-    <div class="fld"><label>МС, руб.</label><input type="number" step="any" data-in="ms"></div>
-    <div class="fld"><label>СО, руб.</label><input type="number" step="any" data-in="so"></div>
-    <div class="fld"><label>БЦ, руб.</label><input type="number" step="any" data-in="bc"></div>
-  </div>
-</div>
+<fieldset><legend>Множители (×)</legend>
+ <div class="row">
+  <label class="f">Упаковка, К<input id="mult_upak" type="number" step="any" oninput="setNum('mult','upak',this)"></label>
+  <label class="f">НДС, К<input id="mult_nds" type="number" step="any" oninput="setNum('mult','nds',this)"></label>
+  <label class="f">Логистика (внутр.), К<input id="mult_log" type="number" step="any" oninput="setNum('mult','log',this)"></label>
+  <label class="f">Налоги, К<input id="mult_nalogi" type="number" step="any" oninput="setNum('mult','nalogi',this)"></label>
+  <label class="f">Отчисления, К<input id="mult_otch" type="number" step="any" oninput="setNum('mult','otch',this)"></label>
+ </div>
+ <div class="row">
+  <label class="f">Офис.расх., К<input id="mult_office" type="number" step="any" oninput="setNum('mult','office',this)"></label>
+  <label class="f">Целевая прибыль, К<input id="mult_tp" type="number" step="any" oninput="setNum('mult','tp',this)"></label>
+  <label class="f">Кросс_док, К<input id="mult_cross" type="number" step="any" oninput="setNum('mult','cross',this)"></label>
+  <label class="f">Прибыль, К<input id="mult_pr" type="number" step="any" oninput="setNum('mult','pr',this)"></label>
+  <label class="f">Произвольный, К<input id="mult_custom" type="number" step="any" oninput="setNum('mult','custom',this)"></label>
+ </div>
+</fieldset>
 
-<div class="card"><h2>Множители (×)</h2>
-  <div class="grid" id="coefGrid"></div>
-</div>
+<fieldset><legend>Делители (÷)</legend>
+ <div class="row">
+  <label class="f">НДС, К<input id="div_nds" type="number" step="any" oninput="setNum('div','nds',this)"></label>
+  <label class="f">Произвольный, К<input id="div_custom" type="number" step="any" oninput="setNum('div','custom',this)"></label>
+ </div>
+</fieldset>
 
-<div class="card"><h2>Делители (÷)</h2>
-  <div class="grid" id="divGrid"></div>
-</div>
+<fieldset><legend>Суммы (+)</legend>
+ <div class="row">
+  <label class="f">Паллет, руб.<input id="sum_pallet" type="number" step="any" oninput="setNum('sum','pallet',this)"></label>
+  <label class="f">Ящик, руб.<input id="sum_box" type="number" step="any" oninput="setNum('sum','box',this)"></label>
+  <label class="f">Доставка, руб.<input id="sum_delivery" type="number" step="any" oninput="setNum('sum','delivery',this)"></label>
+  <label class="f">Произвольный, руб.<input id="sum_custom" type="number" step="any" oninput="setNum('sum','custom',this)"></label>
+ </div>
+ <div class="hint">Чтобы сумма вычиталась — впишите её со знаком минус (например, Ящик = −2500).</div>
+</fieldset>
 
-<div class="card"><h2>Суммы (+)</h2>
-  <div class="grid" id="sumGrid"></div>
-</div>
+<fieldset><legend>Проценты (+ %)</legend>
+ <div class="row">
+  <label class="f">Лог. бонус, %<input id="pct_logb" type="number" step="any" oninput="setNum('pct','logb',this)"></label>
+  <label class="f">Факторинг, %<input id="pct_fakt" type="number" step="any" oninput="setNum('pct','fakt',this)"></label>
+  <label class="f">Экспо, %<input id="pct_expo" type="number" step="any" oninput="setNum('pct','expo',this)"></label>
+  <label class="f">Бонус закуп., %<input id="pct_bonus" type="number" step="any" oninput="setNum('pct','bonus',this)"></label>
+  <label class="f">Транспорт, %<input id="pct_transp" type="number" step="any" oninput="setNum('pct','transp',this)"></label>
+  <label class="f">Произвольный, %<input id="pct_custom" type="number" step="any" oninput="setNum('pct','custom',this)"></label>
+ </div>
+</fieldset>
 
-<div class="card"><h2>Проценты (+%)</h2>
-  <div class="grid" id="pctGrid"></div>
-</div>
+<fieldset><legend>Шаги расчёта (порядок = порядок применения)</legend>
+ <button onclick="addStep()">+ Добавить шаг</button>
+ <button onclick="addManualInter()">+ Запомнить промежуточное значение</button>
+ <div id="steps"></div>
+ <div class="hint">Галочка слева — включить шаг в расчёт. Стрелки — менять порядок. Крестик — удалить.<br>
+ «Взять значение» — начать шаг с выбранного значения (МС, СО, сохранённого и т. д.). Остальные шаги по умолчанию продолжают предыдущий результат.</div>
+</fieldset>
 
-<div class="card"><h2>Шаги расчёта (порядок = порядок применения)</h2>
-  <div id="stepsBox"></div>
-  <div class="row">
-    <button id="btnAddStep">+ Добавить шаг</button>
-    <button id="btnAddMan">+ Запомнить промежуточное значение</button>
-    <button id="btnDumpInter">↓ Вывести и сохранить в файл промежуточные значения</button>
-  </div>
-  <div class="hint">Галочка — включить шаг в расчёт. Стрелки — менять порядок. Крестик — удалить.</div>
-</div>
+<fieldset><legend>Действия</legend>
+ <div class="row">
+  <button onclick="calc()">Рассчитать</button>
+  <button onclick="saveScen()">Сохранить сценарий</button>
+  <select id="scenSel" style="width:190px"></select>
+  <button onclick="loadScen()">Загрузить сценарий</button>
+  <button onclick="exportJSON()">Экспорт JSON</button>
+  <label style="border:1px solid #1a4d8f;background:#dbe8f7;color:#0b3d77;border-radius:6px;padding:5px 12px;cursor:pointer">Импорт JSON<input type="file" accept=".json,application/json" style="display:none" onchange="importJSON(this)"></label>
+  <button onclick="if(confirm('Обновить страницу? Состояние восстановится из автосохранения.'))location.reload()">Обновить</button>
+ </div>
+</fieldset>
 
-<div class="card"><h2>Действия</h2>
-  <div class="row">
-    <button id="btnCalc">Рассчитать</button>
-    <button id="btnSaveSc">Сохранить сценарий</button>
-    <select id="scList"></select>
-    <button id="btnLoadSc">Загрузить сценарий</button>
-    <button id="btnExp">Экспорт JSON</button>
-    <button id="btnImp">Импорт JSON</button>
-    <input type="file" id="impFile" accept=".json" style="display:none">
-    <button id="btnReset">Сброс</button>
-  </div>
-</div>
+<fieldset><legend>История</legend>
+ <table>
+  <thead><tr><th>N</th><th>Шаг</th><th>Действие</th><th>Значение</th><th>Результат</th></tr></thead>
+  <tbody id="histBody"></tbody>
+ </table>
+ <div id="itogBox"></div>
+</fieldset>
 
-<div class="card"><h2>История</h2>
-  <table id="histTable">
-    <thead><tr><th style="width:40px">N</th><th>Шаг</th><th>Действие</th><th class="num">Значение</th><th class="num">Результат</th></tr></thead>
-    <tbody id="histBody"></tbody>
-  </table>
-  <div style="margin-top:8px;font-weight:bold">Итог: <span id="totalVal">—</span></div>
-</div>
+<fieldset><legend>Сохранённые промежуточные значения</legend>
+ <div id="interList"></div>
+</fieldset>
 
-<div class="card"><h2>Промежуточные значения</h2>
-  <div id="interBox"><div class="hint">Пока пусто — отметь «сохранить в промеж.» в шагах и нажми «Рассчитать».</div></div>
-</div>
-
-<div class="card"><h2>Отношение итоговой цены к выбранному промежуточному значению</h2>
-  <div class="row">
-    <select id="relSel" style="min-width:260px"></select>
-    <span id="relVal">—</span>
-  </div>
-</div>
+<fieldset><legend>Отношение итоговой цены к выбранному промежуточному значению</legend>
+ <div class="row">
+  <select id="ratioSel" onchange="S.ratioId=this.value;saveCur();updRatio()"><option value="">— выбрать —</option></select>
+  <span id="ratioVal" style="font-weight:700"></span>
+ </div>
+</fieldset>
 
 <div id="toast"></div>
 
 <script>
-const DEF = {
-  inputs:{ps:0, rt:0, price_m:0, nds_k:1.22, ms:0, so:0, bc:0},
-  coef:{pack:1.05, nds:1.22, log:1, filler:1, otl:1.3, office:1.2, tp:1.05, cross:1, profit:1, custom:1},
-  div:{nds:1.22, custom:1},
-  sums:{pallet:0, box:0, delivery:0, custom:0},
-  pct:{log_bonus:0, factoring:0, expo:0, bonus_buy:0, transport:0, custom:0},
-  steps:[], interNext:1, saved:{}, names:{}, total:null, scenarios:{}
-};
-const IN_LABELS = {ps:'ПС, руб.', rt:'РТ, м.пог.', price_m:'Цена м.пог., руб.', nds_k:'НДС, К', ms:'МС, руб.', so:'СО, руб.', bc:'БЦ, руб.'};
-const CO_LABELS = {pack:'Упаковка, К', nds:'НДС, К', log:'Логистика (внутр.), К', filler:'Наполни, К', otl:'Отчисления, К', office:'Офис.расх., К', tp:'Целевая прибыль, К', cross:'Кросс_док, К', profit:'Прибыль, К', custom:'Произвольный, К'};
-const DIV_LABELS = {nds:'НДС, К', custom:'Произвольный, К'};
-const SUM_LABELS = {pallet:'Паллет, руб.', box:'Ящик, руб.', delivery:'Доставка, руб.', custom:'Произвольный, руб.'};
-const PCT_LABELS = {log_bonus:'Лог_бонус, %', factoring:'Факторинг, %', expo:'Экспо, %', bonus_buy:'Бонус закуп., %', transport:'Транспорт, %', custom:'Произвольный, %'};
-const OPS = {mul:'×', div:'÷', add:'+', sub:'−', addp:'+%', subp:'−%'};
-const OPS_LABEL = {mul:'×', div:'÷', add:'+', sub:'−', addp:'+%', subp:'−%'};
+var SRC=[['PS','ПС, руб.'],['RT','РТ, м.пог.'],['PRICE','Цена м.пог., руб.'],['NDS','НДС, К (исход.)'],['MS','МС, руб.'],['SO','СО, руб.'],['BC','БЦ, руб.']];
+var MULT=[['upak','Упаковка, К'],['nds','НДС, К'],['log','Логистика (внутр.), К'],['nalogi','Налоги, К'],['otch','Отчисления, К'],['office','Офис.расх., К'],['tp','Целевая прибыль, К'],['cross','Кросс_док, К'],['pr','Прибыль, К'],['custom','Произвольный, К']];
+var DIV=[['nds','НДС, К'],['custom','Произвольный, К']];
+var SUM=[['pallet','Паллет, руб.'],['box','Ящик, руб.'],['delivery','Доставка, руб.'],['custom','Произвольный, руб.']];
+var PCT=[['logb','Лог. бонус, %'],['fakt','Факторинг, %'],['expo','Экспо, %'],['bonus','Бонус закуп., %'],['transp','Транспорт, %'],['custom','Произвольный, %']];
+var OPS=[['x','× умножить'],['/','÷ разделить'],['+','+ прибавить'],['-','− вычесть'],['+%','+ % процент'],['-%','− % процент'],['=','= взять значение']];
+var OPK={x:'×', '/':'÷', '+':'+', '-':'−', '+%':'+ %', '-%':'− %', '=':'='};
 
-let S = loadState();
+function demoSteps(){return [
+ {on:true,a:'src_MS',op:'=',b:'num',bnum:0,save:false,saveName:'',sid:'st1'},
+ {on:true,a:'prev',op:'x',b:'m_nds',bnum:0,save:false,saveName:'',sid:'st2'},
+ {on:true,a:'prev',op:'x',b:'m_upak',bnum:0,save:true,saveName:'МС с НДС нов. С упак',sid:'st3'},
+ {on:true,a:'src_SO',op:'=',b:'num',bnum:0,save:false,saveName:'',sid:'st4'},
+ {on:true,a:'prev',op:'x',b:'m_office',bnum:0,save:false,saveName:'',sid:'st5'},
+ {on:true,a:'prev',op:'x',b:'m_nalogi',bnum:0,save:true,saveName:'ФЗП',sid:'st6'},
+ {on:true,a:'prev',op:'x',b:'m_otch',bnum:0,save:true,saveName:'ТЗ',sid:'st7'},
+ {on:true,a:'i_st3',op:'=',b:'num',bnum:0,save:false,saveName:'',sid:'st8'},
+ {on:true,a:'prev',op:'+',b:'i_st7',bnum:0,save:true,saveName:'Себ.без ЦП',sid:'st9'},
+ {on:true,a:'prev',op:'/',b:'d_nds',bnum:0,save:false,saveName:'',sid:'st10'},
+ {on:true,a:'prev',op:'x',b:'m_tp',bnum:0,save:false,saveName:'',sid:'st11'},
+ {on:true,a:'prev',op:'x',b:'m_pr',bnum:0,save:false,saveName:'',sid:'st12'},
+ {on:true,a:'prev',op:'+',b:'s_box',bnum:0,save:false,saveName:'',sid:'st13'},
+ {on:true,a:'prev',op:'+%',b:'p_bonus',bnum:0,save:false,saveName:'',sid:'st14'}
+];}
 
-function loadState(){
-  try{
-    const raw = localStorage.getItem('konstruktor_v4');
-    if(raw){ const st = JSON.parse(raw); return Object.assign(JSON.parse(JSON.stringify(DEF)), st); }
-  }catch(e){}
-  return JSON.parse(JSON.stringify(DEF));
-}
-function saveState(){ try{ localStorage.setItem('konstruktor_v4', JSON.stringify(S)); }catch(e){} }
+function defState(){return {
+ src:{PS:5060,RT:5.75,PRICE:300,NDS:1.22,MS:5562,SO:1415,BC:0},
+ mult:{upak:1.05,nds:1.22,log:1,nalogi:1.39,otch:1.25,office:1.3,tp:1.2,cross:1,pr:2.5,custom:1},
+ div:{nds:1.22,custom:1},
+ sum:{pallet:0,box:-2500,delivery:0,custom:0},
+ pct:{logb:0,fakt:0,expo:0,bonus:2,transp:0,custom:0},
+ steps:demoSteps(), inter:[], mcLog:[], nextNum:1, ratioId:'', scen:'',
+ lastHist:[], lastItog:null
+};}
 
-function fmt(v){
-  if(v===null || v===undefined || isNaN(v)) return '—';
-  return v.toLocaleString('ru-RU',{minimumFractionDigits:2, maximumFractionDigits:2});
-}
+var S=null;
+function num(v){v=parseFloat(v);return isNaN(v)?0:v;}
+function fmt2(x){if(x===undefined||x===null||isNaN(x))return '—';return (Math.round(x*100)/100).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function saveCur(){try{localStorage.setItem('kc_cur',JSON.stringify(S));}catch(e){}}
 
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.style.display='block';
-  clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2600);
-}
+function opts(list,sel){var h='';for(var i=0;i<list.length;i++){h+='<option value="'+list[i][0]+'"'+(list[i][0]===sel?' selected':'')+'>'+esc(list[i][1])+'</option>';}return h;}
+function opts2(list,pref,sel){var l=[];for(var i=0;i<list.length;i++){l.push([pref+list[i][0],list[i][1]]);}return opts(l,sel);}
 
-/* ---------- отрисовка полей-констант ---------- */
-function renderConst(){
-  const mk=(grid, obj, labels, prefix)=>{
-    grid.innerHTML='';
-    for(const k in labels){
-      const d=document.createElement('div'); d.className='fld';
-      d.innerHTML='<label>'+labels[k]+'</label>';
-      const inp=document.createElement('input');
-      inp.type='number'; inp.step='any'; inp.value=obj[k];
-      inp.addEventListener('input',()=>{ obj[k]=parseFloat(inp.value)||0; saveState(); renderOptions(); });
-      d.appendChild(inp); grid.appendChild(d);
-    }
-  };
-  mk(document.getElementById('coefGrid'), S.coef, CO_LABELS);
-  mk(document.getElementById('divGrid'), S.div, DIV_LABELS);
-  mk(document.getElementById('sumGrid'), S.sums, SUM_LABELS);
-  mk(document.getElementById('pctGrid'), S.pct, PCT_LABELS);
-  document.querySelectorAll('[data-in]').forEach(inp=>{
-    inp.value = S.inputs[inp.dataset.in];
-    inp.addEventListener('input',()=>{ S.inputs[inp.dataset.in]=parseFloat(inp.value)||0; saveState(); renderOptions(); });
-  });
+function optsA(sel){
+ var h='<option value="prev"'+(sel==='prev'?' selected':'')+'>— результат предыдущего шага —</option>';
+ h+='<optgroup label="Исходные данные">'+opts2(SRC,'src_',sel)+'</optgroup>';
+ if(S.inter.length){var iv=[];for(var i=0;i<S.inter.length;i++){iv.push(['i_'+S.inter[i].id,S.inter[i].name]);}h+='<optgroup label="Промежуточные значения">'+opts(iv,sel)+'</optgroup>';}
+ return h;
 }
-
-/* ---------- варианты источников/операндов ---------- */
-function sourceOptions(cur){
-  let h='<option value="prev">— результат предыдущего шага —</option>';
-  for(const k in IN_LABELS) h+='<option value="in:'+k+'">'+IN_LABELS[k]+'</option>';
-  for(const id in S.names) h+='<option value="int:'+id+'">'+S.names[id]+'</option>';
-  return h;
+function optsB(sel){
+ var h='';
+ h+='<optgroup label="Множители (×)">'+opts2(MULT,'m_',sel)+'</optgroup>';
+ h+='<optgroup label="Делители (÷)">'+opts2(DIV,'d_',sel)+'</optgroup>';
+ h+='<optgroup label="Суммы (+)">'+opts2(SUM,'s_',sel)+'</optgroup>';
+ h+='<optgroup label="Проценты (+ %)">'+opts2(PCT,'p_',sel)+'</optgroup>';
+ h+='<optgroup label="Исходные данные">'+opts2(SRC,'src_',sel)+'</optgroup>';
+ if(S.inter.length){var iv=[];for(var i=0;i<S.inter.length;i++){iv.push(['i_'+S.inter[i].id,S.inter[i].name+' ('+fmt2(S.inter[i].value)+')']);}h+='<optgroup label="Промежуточные значения">'+opts(iv,sel)+'</optgroup>';}
+ h+='<option value="num"'+(sel==='num'?' selected':'')+'>Число…</option>';
+ return h;
 }
-function operandOptions(cur){
-  let g=(title,vals,labels,pref)=>{ let s='<optgroup label="'+title+'">';
-    for(const k in vals) s+='<option value="'+pref+k+'">'+labels[k]+'</option>'; return s+'</optgroup>'; };
-  let h='';
-  h+=g('Множители', S.coef, CO_LABELS, 'c:');
-  h+=g('Делители', S.div, DIV_LABELS, 'd:');
-  h+=g('Суммы', S.sums, SUM_LABELS, 's:');
-  h+=g('Проценты', S.pct, PCT_LABELS, 'p:');
-  h+=g('Исходные данные', S.inputs, IN_LABELS, 'in:');
-  let its='';
-  for(const id in S.names) its+='<option value="int:'+id+'">'+S.names[id]+'</option>';
-  if(its) h+='<optgroup label="Промежуточные значения">'+its+'</optgroup>';
-  h+='<option value="num">число…</option>';
-  return h;
+function kVal(key,st){
+ if(!key)return 0;
+ if(key==='num')return st?num(st.bnum):0;
+ if(key.indexOf('src_')===0)return num(S.src[key.slice(4)]);
+ if(key.indexOf('m_')===0)return num(S.mult[key.slice(2)]);
+ if(key.indexOf('d_')===0)return num(S.div[key.slice(2)]);
+ if(key.indexOf('s_')===0)return num(S.sum[key.slice(2)]);
+ if(key.indexOf('p_')===0)return num(S.pct[key.slice(2)]);
+ if(key.indexOf('i_')===0){for(var j=0;j<S.inter.length;j++){if(S.inter[j].id===key.slice(2))return S.inter[j].value;}return 0;}
+ return 0;
 }
-function selOpts(html, cur){ // пометить выбранный
-  const d=document.createElement('div'); d.innerHTML=html;
-  d.querySelectorAll('option').forEach(o=>{ if(o.value===cur) o.selected=true; });
-  return d.innerHTML;
+function labelOf(key,st){
+ if(!key)return '—';
+ if(key==='num')return st?fmt2(st.bnum):'0';
+ if(key.indexOf('i_')===0){for(var j=0;j<S.inter.length;j++){if(S.inter[j].id===key.slice(2))return S.inter[j].name;}return '(значение удалено)';}
+ var p=key.indexOf('_');var pref=key.slice(0,p);var id=key.slice(p+1);
+ var list=pref==='src'?SRC:pref==='m'?MULT:pref==='d'?DIV:pref==='s'?SUM:pref==='p'?PCT:null;
+ if(list){for(var k=0;k<list.length;k++){if(list[k][0]===id)return list[k][1];}}
+ return key;
 }
 
-/* ---------- шаги ---------- */
+function renderStatic(){
+ for(var i=0;i<SRC.length;i++){var el=document.getElementById('src_'+SRC[i][0]);if(el)el.value=S.src[SRC[i][0]];}
+ var groups=[['mult',MULT],['div',DIV],['sum',SUM],['pct',PCT]];
+ for(var g=0;g<groups.length;g++){var gr=groups[g][0],list=groups[g][1];
+  for(var j=0;j<list.length;j++){var e=document.getElementById(gr+'_'+list[j][0]);if(e)e.value=S[gr][list[j][0]];}}
+}
 function renderSteps(){
-  const box=document.getElementById('stepsBox');
-  box.innerHTML='';
-  S.steps.forEach((st,i)=>{
-    const row=document.createElement('div'); row.className='step';
-    row.innerHTML =
-      '<input type="checkbox" class="en" data-i="'+i+'" '+(st.enabled?'checked':'')+' title="включить в расчёт">'+
-      '<select class="src" data-i="'+i+'">'+selOpts(sourceOptions(), st.source)+'</select>'+
-      '<select class="op" data-i="'+i+'">'+Object.keys(OPS).map(k=>'<option value="'+k+'"'+(st.op===k?' selected':'')+'>'+OPS_LABEL[k]+'</option>').join('')+'</select>'+
-      '<select class="opd" data-i="'+i+'">'+selOpts(operandOptions(), st.operand)+'</select>'+
-      '<input type="number" step="any" class="num'+(st.operand==='num'?'':' hidden')+'" placeholder="число" data-i="'+i+'" value="'+(st.num!==''?st.num:'')+'" style="display:'+(st.operand==='num'?'block':'none')+'">'+
-      '<label style="font-size:13px"><input type="checkbox" class="sv" data-i="'+i+'" '+(st.save?'checked':'')+'> сохранить в промеж.</label>'+
-      '<button class="mini up" data-i="'+i+'" title="вверх">↑</button>'+
-      '<button class="mini down" data-i="'+i+'" title="вниз">↓</button>'+
-      '<button class="mini danger del" data-i="'+i+'" title="удалить">✕</button>';
-    box.appendChild(row);
-  });
-  if(!S.steps.length) box.innerHTML='<div class="hint">Шагов пока нет — нажми «+ Добавить шаг».</div>';
-}
-
-/* делегирование: кнопки и поля шагов */
-document.getElementById('stepsBox').addEventListener('click', e=>{
-  const btn=e.target.closest('button'); if(!btn) return;
-  const i=+btn.dataset.i;
-  if(btn.classList.contains('up') && i>0){
-    [S.steps[i-1],S.steps[i]]=[S.steps[i],S.steps[i-1]];
-    saveState(); renderSteps(); renderOptions();
-  } else if(btn.classList.contains('down') && i<S.steps.length-1){
-    [S.steps[i+1],S.steps[i]]=[S.steps[i],S.steps[i+1]];
-    saveState(); renderSteps(); renderOptions();
-  } else if(btn.classList.contains('del')){
-    S.steps.splice(i,1); saveState(); renderSteps(); renderOptions();
-  }
-});
-document.getElementById('stepsBox').addEventListener('change', e=>{
-  const t=e.target; const i=+t.dataset.i; if(isNaN(i)) return;
-  const st=S.steps[i]; if(!st) return;
-  if(t.classList.contains('en')) st.enabled=t.checked;
-  else if(t.classList.contains('src')) st.source=t.value;
-  else if(t.classList.contains('op')) st.op=t.value;
-  else if(t.classList.contains('opd')){ st.operand=t.value; saveState(); renderSteps(); return; }
-  else if(t.classList.contains('num')) st.num=t.value;
-  else if(t.classList.contains('sv')){
-    st.save=t.checked;
-    if(st.save && !st.saveId){ st.saveId='p'+Date.now()+Math.random().toString(36).slice(2,6); st.autoName='Промежуточный '+(S.interNext++); }
-  }
-  saveState();
-});
-
-/* ---------- промежуточные значения ---------- */
-function interList(){ // [{id,name,val,manual}]
-  const out=[];
-  for(const id in S.names){
-    out.push({id:id, name:S.names[id], has: (id in S.saved)});
-  }
-  return out;
+ var el=document.getElementById('steps');var h='';
+ for(var i=0;i<S.steps.length;i++){var st=S.steps[i];
+  h+='<div class="step">'
+   +'<label class="chk"><input type="checkbox" '+(st.on?'checked':'')+' onchange="togStep('+i+')"> вкл.</label> '
+   +'<select onchange="setStep('+i+',\'a\',this.value)">'+optsA(st.a)+'</select> '
+   +'<select onchange="setStep('+i+',\'op\',this.value)">'+opts(OPS,st.op)+'</select> '
+   +'<select onchange="setStep('+i+',\'b\',this.value)">'+optsB(st.b)+'</select> '
+   +'<input type="number" step="any" style="width:90px" placeholder="число" value="'+(st.b==='num'?esc(st.bnum):'')+'" oninput="setBnum('+i+',this)"> '
+   +'<button class="ic" onclick="moveStep('+i+',-1)">↑</button>'
+   +'<button class="ic" onclick="moveStep('+i+',1)">↓</button>'
+   +'<button class="ic" onclick="delStep('+i+')">✕</button>'
+   +'<div style="margin-top:5px"><label class="chk"><input type="checkbox" '+(st.save?'checked':'')+' onchange="togSave('+i+')"> сохранить в промежуточные</label> '
+   +'<input type="text" style="width:230px" placeholder="имя значения" value="'+esc(st.saveName)+'" oninput="setSaveName('+i+',this)"></div>'
+   +'</div>';
+ }
+ el.innerHTML=h||'<div class="small">Шагов пока нет — нажмите «+ Добавить шаг».</div>';
 }
 function renderInter(){
-  const box=document.getElementById('interBox');
-  const list=interList();
-  if(!list.length){ box.innerHTML='<div class="hint">Пока пусто — отметь «сохранить в промеж.» в шагах и нажми «Рассчитать».</div>'; renderRel(); return; }
-  box.innerHTML='';
-  list.forEach(it=>{
-    const row=document.createElement('div'); row.className='introw';
-    const has = it.has;
-    row.innerHTML =
-      '<input type="text" class="name" value="'+it.name.replace(/"/g,'&quot;')+'" title="имя">'+
-      '<input type="number" step="any" class="val" value="'+(has? S.saved[it.id] : '')+'" placeholder="значение" title="значение">'+
-      (has? '<span class="ok">из расчёта</span>' : '<span class="hint">вручную</span>')+
-      '<button class="mini danger delint" data-id="'+it.id+'">✕</button>';
-    box.appendChild(row);
-    row.querySelector('.name').addEventListener('input',ev=>{ S.names[it.id]=ev.target.value; saveState(); renderOptions(); });
-    row.querySelector('.val').addEventListener('input',ev=>{ S.saved[it.id]=parseFloat(ev.target.value)||0; saveState(); renderRel(); });
-    row.querySelector('.delint').addEventListener('click',()=>{ delete S.names[it.id]; delete S.saved[it.id]; saveState(); renderInter(); renderOptions(); });
-  });
-  renderRel();
+ var el=document.getElementById('interList');var h='';
+ for(var i=0;i<S.inter.length;i++){var x=S.inter[i];
+  var manual=x.id.charAt(0)==='u';
+  h+='<div class="row">'
+   +'<input type="text" style="width:250px" value="'+esc(x.name)+'" onchange="renInter('+i+',this)">'
+   +'<b>'+fmt2(x.value)+'</b>';
+  if(manual)h+='<input type="number" step="any" style="width:110px" value="'+x.value+'" onchange="setInterVal('+i+',this)">';
+  h+='<button class="ic" onclick="delInter('+i+')">✕</button></div>';
+ }
+ el.innerHTML=h||'<div class="small">Пока нет. Значения появляются, когда шаг сохранён, или добавьте вручную.</div>';
+ var rs=document.getElementById('ratioSel');var h2='<option value="">— выбрать —</option>';
+ for(var k=0;k<S.inter.length;k++){var y=S.inter[k];h2+='<option value="'+y.id+'"'+(y.id===S.ratioId?' selected':'')+'>'+esc(y.name)+' ('+fmt2(y.value)+')</option>';}
+ rs.innerHTML=h2;
+ updRatio();
 }
+function renderScenSel(){
+ var rs=document.getElementById('scenSel');var all={};
+ try{all=JSON.parse(localStorage.getItem('kc_list')||'{}');}catch(e){}
+ var h='<option value="">— сценарий —</option>';
+ for(var k in all){h+='<option value="'+esc(k)+'"'+(k===S.scen?' selected':'')+'>'+esc(k)+'</option>';}
+ rs.innerHTML=h;
+}
+function renderHist(){
+ var tb=document.getElementById('histBody');var h='';
+ var hist=S.lastHist||[];
+ for(var i=0;i<hist.length;i++){var r=hist[i];
+  h+='<tr><td>'+(r[0]===''?'—':r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td class="num">'+esc(r[3])+'</td><td class="num">'+esc(r[4])+'</td></tr>';
+ }
+ if(S.lastItog!==null&&S.lastItog!==undefined){h+='<tr><th></th><th colspan="4" style="text-align:right">Итог:</th><th class="num">'+fmt2(S.lastItog)+'</th></tr>';}
+ tb.innerHTML=h;
+ var ib=document.getElementById('itogBox');
+ ib.textContent=(S.lastItog===null||S.lastItog===undefined)?'':'Итог: '+fmt2(S.lastItog)+' руб.';
+}
+function renderAll(){renderStatic();renderSteps();renderInter();renderScenSel();renderHist();}
 
-/* ---------- расчёт ---------- */
-function resolveSource(src, prev){
-  if(src==='prev') return prev;
-  if(src && src.startsWith('in:')) return S.inputs[src.slice(3)];
-  if(src && src.startsWith('int:')) { const id=src.slice(4); return (id in S.saved)? S.saved[id] : NaN; }
-  return NaN;
+/* --- действия --- */
+function writeMS(){
+ var v=(num(S.src.PS)+num(S.src.RT)*num(S.src.PRICE))/(num(S.src.NDS)||1);
+ v=Math.round(v*100)/100;
+ S.src.MS=v;
+ document.getElementById('src_MS').value=v;
+ S.mcLog.push({val:v,formula:'(ПС + РТ × Цена м.пог.) / НДС, К = ('+fmt2(S.src.PS)+' + '+fmt2(S.src.RT)+'×'+fmt2(S.src.PRICE)+') / '+fmt2(S.src.NDS)+' = '+fmt2(v)});
+ saveCur();toast('МС записано как исходное данное: '+fmt2(v)+' руб.');
+ if(S.lastHist)renderHist();
 }
-function resolveOperand(opd, num){
-  if(opd==='num') return parseFloat(num)||0;
-  const [pref,k]=opd.split(':');
-  if(pref==='c') return S.coef[k];
-  if(pref==='d') return S.div[k];
-  if(pref==='s') return S.sums[k];
-  if(pref==='p') return S.pct[k];
-  if(pref==='in') return S.inputs[k];
-  if(pref==='int') return (k in S.saved)? S.saved[k] : NaN;
-  return NaN;
-}
-function opName(v){ // краткое имя значения для истории
-  return v;
-}
+function setNum(gr,id,el){S[gr][id]=num(String(el.value).replace(',','.'));saveCur();}
+function addStep(){S.steps.push({on:true,a:'prev',op:'x',b:'num',bnum:0,save:false,saveName:'',sid:'st'+Date.now()});saveCur();renderSteps();}
+function togStep(i){S.steps[i].on=!S.steps[i].on;saveCur();}
+function setStep(i,k,v){S.steps[i][k]=v;saveCur();if(k==='a')renderSteps();}
+function setBnum(i,el){S.steps[i].bnum=num(String(el.value).replace(',','.'));saveCur();}
+function togSave(i){var st=S.steps[i];st.save=!st.save;if(st.save&&!st.saveName){st.saveName='Промежуточный '+(S.nextNum++);}saveCur();renderSteps();}
+function setSaveName(i,el){S.steps[i].saveName=el.value;saveCur();}
+function moveStep(i,d){var j=i+d;if(j<0||j>=S.steps.length)return;var t=S.steps[i];S.steps[i]=S.steps[j];S.steps[j]=t;saveCur();renderSteps();}
+function delStep(i){S.steps.splice(i,1);saveCur();renderSteps();}
+function addManualInter(){S.inter.push({id:'u'+Date.now(),name:'Значение '+(S.inter.length+1),value:0,manual:true});saveCur();renderInter();renderSteps();}
+function renInter(i,el){S.inter[i].name=el.value||S.inter[i].name;saveCur();renderAll();}
+function setInterVal(i,el){S.inter[i].value=num(String(el.value).replace(',','.'));saveCur();renderInter();}
+function delInter(i){S.inter.splice(i,1);saveCur();renderAll();}
+
 function calc(){
-  let prev=null, first=true;
-  const rows=[]; let total=null;
-  S.steps.forEach((st,idx)=>{
-    if(!st.enabled) return;
-    let src=resolveSource(st.source, prev);
-    let opd=resolveOperand(st.operand, st.num);
-    const srcName = st.source==='prev' ? (first?'(нет предыдущего)':'пред. результат')
-      : st.source.startsWith('in:')? IN_LABELS[st.source.slice(3)]
-      : st.source.startsWith('int:')? (S.names[st.source.slice(4)]||'?') : '?';
-    const opdName = st.operand==='num' ? st.num
-      : st.operand.startsWith('c:')? CO_LABELS[st.operand.slice(2)]
-      : st.operand.startsWith('d:')? DIV_LABELS[st.operand.slice(2)]
-      : st.operand.startsWith('s:')? SUM_LABELS[st.operand.slice(2)]
-      : st.operand.startsWith('p:')? PCT_LABELS[st.operand.slice(2)]
-      : st.operand.startsWith('in:')? IN_LABELS[st.operand.slice(3)]
-      : st.operand.startsWith('int:')? (S.names[st.operand.slice(4)]||'?') : '?';
-    let res=NaN, act='';
-    if(isNaN(src)){ act='ОШИБКА: источник не задан'; }
-    else if(isNaN(opd)){ act='ОШИБКА: операнд не задан'; }
-    else switch(st.op){
-      case 'mul': res=src*opd; act=srcName+' × '+opdName+' ('+fmt(opd)+')'; break;
-      case 'div': res=opd!==0? src/opd : NaN; act=srcName+' ÷ '+opdName+' ('+fmt(opd)+')'; if(isNaN(res)) act='ОШИБКА: деление на 0'; break;
-      case 'add': res=src+opd; act=srcName+' + '+opdName+' ('+fmt(opd)+')'; break;
-      case 'sub': res=src-opd; act=srcName+' − '+opdName+' ('+fmt(opd)+')'; break;
-      case 'addp': res=src*(1+opd/100); act=srcName+' + '+opdName+' ('+fmt(opd)+'%)'; break;
-      case 'subp': res=src*(1-opd/100); act=srcName+' − '+opdName+' ('+fmt(opd)+'%)'; break;
-    }
-    rows.push({n:rows.length+1, step:srcName, act:act, val:(isNaN(opd)?'—':opd), res:isNaN(res)?'—':res, err:isNaN(res)});
-    if(!isNaN(res)){
-      prev=res; total=res;
-      if(st.save && st.saveId){ S.saved[st.saveId]=res; S.names[st.saveId]=S.names[st.saveId]||st.autoName||('Промежуточный '+S.interNext++); }
-    }
-    first=false;
-  });
-  S.total=total;
-  saveState();
-  renderHistory(rows);
-  renderInter();
-  renderRel();
+ var run=0;var hist=[];
+ for(var m=0;m<S.mcLog.length;m++){hist.push(['','Запись МС',S.mcLog[m].formula,'',fmt2(S.mcLog[m].val)]);}
+ for(var i=0;i<S.steps.length;i++){var st=S.steps[i];
+  if(!st.on)continue;
+  var a=(st.a==='prev')?run:kVal(st.a,null);
+  var b=kVal(st.b,st);
+  var res;
+  if(st.op==='=')res=a;
+  else if(st.op==='x')res=a*b;
+  else if(st.op==='/')res=(b!==0)?a/b:NaN;
+  else if(st.op==='+')res=a+b;
+  else if(st.op==='-')res=a-b;
+  else if(st.op==='+%')res=a*(1+b/100);
+  else if(st.op==='-%')res=a*(1-b/100);
+  else res=a;
+  run=res;
+  var sname=(st.a==='prev')?'результат пред. шага':labelOf(st.a,null);
+  var act=OPK[st.op]||st.op;
+  if(st.op!=='=')act+=' '+labelOf(st.b,st);
+  hist.push([i+1,sname,act,(st.op==='='?'':fmt2(b)),fmt2(res)]);
+  if(st.save){
+   var nm=st.saveName||('Промежуточный '+(S.nextNum++));
+   st.saveName=nm;
+   var ex=null;for(var j=0;j<S.inter.length;j++){if(S.inter[j].id===st.sid)ex=S.inter[j];}
+   if(ex){ex.value=res;ex.name=nm;}else S.inter.push({id:st.sid,name:nm,value:res});
+  }
+ }
+ S.lastHist=hist;S.lastItog=run;
+ saveCur();renderAll();updRatio();
+ toast('Расчёт выполнен. Итог: '+fmt2(run)+' руб.');
 }
-function renderHistory(rows){
-  const tb=document.getElementById('histBody'); tb.innerHTML='';
-  rows.forEach(r=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML='<td>'+r.n+'</td><td>'+r.step+'</td><td'+(r.err?' class="err"':'')+'>'+r.act+'</td><td class="num">'+(isNaN(r.val)?'—':fmt(r.val))+'</td><td class="num">'+(isNaN(r.res)?'—':fmt(r.res))+'</td>';
-    tb.appendChild(tr);
-  });
-  document.getElementById('totalVal').textContent = S.total===null? '—' : fmt(S.total);
+function updRatio(){
+ var el=document.getElementById('ratioVal');
+ if(!S.ratioId){el.textContent='';return;}
+ var v=0;for(var j=0;j<S.inter.length;j++){if(S.inter[j].id===S.ratioId)v=S.inter[j].value;}
+ var itog=S.lastItog;
+ if(itog===null||itog===undefined){el.textContent='— сначала рассчитайте итог';return;}
+ el.textContent='Итог '+fmt2(itog)+' / '+labelOf('i_'+S.ratioId,null)+' '+fmt2(v)+' = '+(v!==0?(itog/v).toFixed(2):'—');
 }
-
-/* ---------- отношение ---------- */
-function renderRel(){
-  const sel=document.getElementById('relSel');
-  const cur=sel.value;
-  let h='<option value="">— выбери значение —</option>';
-  for(const id in S.names) h+='<option value="'+id+'">'+S.names[id]+'</option>';
-  sel.innerHTML=h;
-  if(cur) sel.value=cur;
-  showRel();
+function saveScen(){
+ var nm=prompt('Название сценария:',S.scen||'');
+ if(!nm)return;S.scen=nm;
+ var all={};try{all=JSON.parse(localStorage.getItem('kc_list')||'{}');}catch(e){}
+ all[nm]=S;localStorage.setItem('kc_list',JSON.stringify(all));
+ saveCur();renderScenSel();toast('Сценарий «'+nm+'» сохранён');
 }
-function showRel(){
-  const id=document.getElementById('relSel').value;
-  const el=document.getElementById('relVal');
-  if(!id || S.total===null || !(id in S.saved) || !S.saved[id]){ el.textContent='—'; return; }
-  el.textContent='Итог / '+S.names[id]+' = '+(S.total/S.saved[id]).toLocaleString('ru-RU',{maximumFractionDigits:4});
+function loadScen(){
+ var all={};try{all=JSON.parse(localStorage.getItem('kc_list')||'{}');}catch(e){}
+ var sel=document.getElementById('scenSel').value;
+ if(!sel||!all[sel]){toast('Выберите сценарий в списке');return;}
+ S=all[sel];saveCur();renderAll();toast('Сценарий «'+sel+'» загружен');
 }
-document.getElementById('relSel').addEventListener('change', showRel);
-
-/* ---------- сценарии ---------- */
-function snapshot(){ return JSON.parse(JSON.stringify({inputs:S.inputs,coef:S.coef,div:S.div,sums:S.sums,pct:S.pct,steps:S.steps,saved:S.saved,names:S.names,interNext:S.interNext,total:S.total})); }
-function restore(o){
-  Object.assign(S, JSON.parse(JSON.stringify(o)));
-  saveState(); renderConst(); renderSteps(); renderInter(); renderOptions(); renderRel();
-  document.getElementById('totalVal').textContent = S.total===null? '—' : fmt(S.total);
+function exportJSON(){
+ var data=JSON.stringify(S,null,2);
+ var blob=new Blob([data],{type:'application/json'});
+ var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+ a.download='konstruktor_'+(S.scen||'сценарий')+'.json';a.click();
 }
-function renderScList(){
-  const sel=document.getElementById('scList'); const cur=sel.value;
-  let h='<option value="">— сценарии —</option>';
-  for(const n in S.scenarios) h+='<option value="'+n+'">'+n+'</option>';
-  sel.innerHTML=h; if(cur) sel.value=cur;
+function importJSON(inp){
+ var f=inp.files[0];if(!f)return;
+ var r=new FileReader();
+ r.onload=function(){try{S=JSON.parse(r.result);if(!S.steps)S=defState();saveCur();renderAll();toast('JSON загружен');}catch(e){toast('Не удалось прочитать файл');}};
+ r.readAsText(f);
 }
 
-document.getElementById('btnMS').addEventListener('click',()=>{
-  const v=(S.inputs.ps + S.inputs.rt*S.inputs.price_m)/(S.inputs.nds_k||1);
-  S.inputs.ms=v; saveState();
-  document.querySelector('[data-in="ms"]').value=+v.toFixed(4);
-  toast('МС записано как исходное данное: '+fmt(v)+' руб.');
-});
-document.getElementById('btnAddStep').addEventListener('click',()=>{
-  S.steps.push({enabled:true, source:'prev', op:'mul', operand:'c:nds', num:'', save:false, saveId:'', autoName:''});
-  saveState(); renderSteps(); renderOptions();
-});
-document.getElementById('btnAddMan').addEventListener('click',()=>{
-  const id='p'+Date.now()+Math.random().toString(36).slice(2,6);
-  S.names[id]='Промежуточный '+(S.interNext++); saveState(); renderInter(); renderOptions();
-});
-document.getElementById('btnDumpInter').addEventListener('click',()=>{
-  const list=interList(); if(!list.length){ toast('Промежуточных значений пока нет'); return; }
-  let csv='Имя;Значение\r\n';
-  list.forEach(it=>csv+='"'+S.names[it.id]+'";'+(it.has? S.saved[it.id]:'')+'\r\n');
-  const b=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='промежуточные_значения.csv'; a.click();
-  toast('Файл со промежуточными значениями сохранён');
-});
-document.getElementById('btnCalc').addEventListener('click',calc);
-document.getElementById('btnSaveSc').addEventListener('click',()=>{
-  const n=prompt('Название сценария:','Сценарий '+(Object.keys(S.scenarios).length+1));
-  if(!n) return;
-  S.scenarios[n]=snapshot(); saveState(); renderScList(); toast('Сценарий «'+n+'» сохранён');
-});
-document.getElementById('btnLoadSc').addEventListener('click',()=>{
-  const n=document.getElementById('scList').value;
-  if(!n){ toast('Сначала выбери сценарий в списке'); return; }
-  restore(S.scenarios[n]); toast('Сценарий «'+n+'» загружен');
-});
-document.getElementById('btnExp').addEventListener('click',()=>{
-  const b=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='scenario.json'; a.click();
-  toast('JSON экспортирован');
-});
-document.getElementById('btnImp').addEventListener('click',()=>document.getElementById('impFile').click());
-document.getElementById('impFile').addEventListener('change',e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{ try{ restore(JSON.parse(r.result)); toast('Сценарий импортирован'); }catch(err){ toast('Не удалось прочитать файл'); } };
-  r.readAsText(f); e.target.value='';
-});
-document.getElementById('btnReset').addEventListener('click',()=>{
-  if(!confirm('Вернуть всё к значениям по умолчанию?')) return;
-  S=JSON.parse(JSON.stringify(DEF)); saveState();
-  renderConst(); renderSteps(); renderInter(); renderRel(); renderScList(); renderHistory([]); renderOptions();
-  document.getElementById('totalVal').textContent='—';
-});
-
-function renderOptions(){ renderStepsSrcOnly(); }
-function renderStepsSrcOnly(){ // обновить списки источников/операндов без сброса фокуса — простая перерисовка
-  renderSteps();
-}
-
-/* старт */
-renderConst(); renderSteps(); renderInter(); renderRel(); renderScList();
+/* --- запуск --- */
+(function(){
+ var saved=null;
+ try{saved=JSON.parse(localStorage.getItem('kc_cur'));}catch(e){}
+ if(saved&&saved.steps){S=saved;}else{S=defState();}
+ renderAll();
+ if(saved)toast('Восстановлено последнее состояние страницы');
+})();
 </script>
 </body>
 </html>
