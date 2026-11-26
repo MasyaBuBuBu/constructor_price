@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>Конструктор расчёта цены — v3</title>
+<title>Конструктор расчёта цены</title>
 <style>
  body{font-family:'Segoe UI',Arial,sans-serif;max-width:960px;margin:14px auto;padding:0 12px;background:#fff;color:#111;font-size:14px}
  h2{color:#0b3d77}
@@ -29,8 +29,7 @@
 </style>
 </head>
 <body>
-<h2>КОНСТРУКТОР РАСЧЁТА ЦЕНЫ <span class="small">v3</span></h2>
-<div class="hint">В шагах уже собран пример «Блэквуд» из техзадания — нажмите «Рассчитать» и сверьте итог (в примере из ТЗ: 23 337,28).</div>
+<h2>КОНСТРУКТОР РАСЧЁТА ЦЕНЫ</h2>
 
 <fieldset><legend>Исходные данные</legend>
  <div class="row">
@@ -48,7 +47,7 @@
  <div class="hint">Записать МС: (ПС + РТ × Цена м.пог.) / НДС, К. Результат подставится в поле «МС, руб.» и попадёт в историю. Значение МС можно также ввести вручную.</div>
 </fieldset>
 
-<fieldset><legend>Множители (×)</legend>
+<fieldset><legend>Умножить на коэффициент:</legend>
  <div class="row">
   <label class="f">Упаковка, К<input id="mult_upak" type="number" step="any" oninput="setNum('mult','upak',this)"></label>
   <label class="f">НДС, К<input id="mult_nds" type="number" step="any" oninput="setNum('mult','nds',this)"></label>
@@ -65,24 +64,24 @@
  </div>
 </fieldset>
 
-<fieldset><legend>Делители (÷)</legend>
+<fieldset><legend>Разделить на коэффициент:</legend>
  <div class="row">
   <label class="f">НДС, К<input id="div_nds" type="number" step="any" oninput="setNum('div','nds',this)"></label>
   <label class="f">Произвольный, К<input id="div_custom" type="number" step="any" oninput="setNum('div','custom',this)"></label>
  </div>
 </fieldset>
 
-<fieldset><legend>Суммы (+)</legend>
+<fieldset><legend>Наценка в руб.:</legend>
  <div class="row">
   <label class="f">Паллет, руб.<input id="sum_pallet" type="number" step="any" oninput="setNum('sum','pallet',this)"></label>
   <label class="f">Ящик, руб.<input id="sum_box" type="number" step="any" oninput="setNum('sum','box',this)"></label>
   <label class="f">Доставка, руб.<input id="sum_delivery" type="number" step="any" oninput="setNum('sum','delivery',this)"></label>
   <label class="f">Произвольный, руб.<input id="sum_custom" type="number" step="any" oninput="setNum('sum','custom',this)"></label>
  </div>
- <div class="hint">Чтобы сумма вычиталась — впишите её со знаком минус (например, Ящик = −2500).</div>
+ <div class="hint">Чтобы сумма вычиталась — впишите её со знаком минус</div>
 </fieldset>
 
-<fieldset><legend>Проценты (+ %)</legend>
+<fieldset><legend>Наценка в %:</legend>
  <div class="row">
   <label class="f">Лог. бонус, %<input id="pct_logb" type="number" step="any" oninput="setNum('pct','logb',this)"></label>
   <label class="f">Факторинг, %<input id="pct_fakt" type="number" step="any" oninput="setNum('pct','fakt',this)"></label>
@@ -91,6 +90,7 @@
   <label class="f">Транспорт, %<input id="pct_transp" type="number" step="any" oninput="setNum('pct','transp',this)"></label>
   <label class="f">Произвольный, %<input id="pct_custom" type="number" step="any" oninput="setNum('pct','custom',this)"></label>
  </div>
+ <div class="hint">Чтобы процент вычитался — впишите его со знаком минус</div>
 </fieldset>
 
 <fieldset><legend>Шаги расчёта (порядок = порядок применения)</legend>
@@ -98,18 +98,17 @@
  <button onclick="addManualInter()">+ Запомнить промежуточное значение</button>
  <div id="steps"></div>
  <div class="hint">Галочка слева — включить шаг в расчёт. Стрелки — менять порядок. Крестик — удалить.<br>
- «Взять значение» — начать шаг с выбранного значения (МС, СО, сохранённого и т. д.). Остальные шаги по умолчанию продолжают предыдущий результат.</div>
+ «Взять значение» — начать шаг с выбранного значения (МС, СО, сохранённого и т. д.). Остальные шаги по умолчанию продолжают предыдущий результат.<br>
+ Галочка внизу - сохранить промежуточный результат. Нажмите галочку и введите название. После рассчета промежуточное значение сохраниться и будет доступно для выбора в формуле.</div>
 </fieldset>
 
 <fieldset><legend>Действия</legend>
  <div class="row">
   <button onclick="calc()">Рассчитать</button>
-  <button onclick="saveScen()">Сохранить сценарий</button>
-  <select id="scenSel" style="width:190px"></select>
-  <button onclick="loadScen()">Загрузить сценарий</button>
   <button onclick="exportJSON()">Экспорт JSON</button>
-  <label style="border:1px solid #1a4d8f;background:#dbe8f7;color:#0b3d77;border-radius:6px;padding:5px 12px;cursor:pointer">Импорт JSON<input type="file" accept=".json,application/json" style="display:none" onchange="importJSON(this)"></label>
-  <button onclick="if(confirm('Обновить страницу? Состояние восстановится из автосохранения.'))location.reload()">Обновить</button>
+  <button onclick="document.getElementById('importFile').click()">Импорт JSON</button>
+  <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJSON(this)">
+  <button onclick="if(confirm('Обновить страницу? Все введённые данные, история и промежуточные значения будут очищены.'))location.reload()">Обновить</button>
  </div>
 </fieldset>
 
@@ -127,7 +126,7 @@
 
 <fieldset><legend>Отношение итоговой цены к выбранному промежуточному значению</legend>
  <div class="row">
-  <select id="ratioSel" onchange="S.ratioId=this.value;saveCur();updRatio()"><option value="">— выбрать —</option></select>
+  <select id="ratioSel" onchange="S.ratioId=this.value;updRatio()"><option value="">— выбрать —</option></select>
   <span id="ratioVal" style="font-weight:700"></span>
  </div>
 </fieldset>
@@ -143,30 +142,14 @@ var PCT=[['logb','Лог. бонус, %'],['fakt','Факторинг, %'],['exp
 var OPS=[['x','× умножить'],['/','÷ разделить'],['+','+ прибавить'],['-','− вычесть'],['+%','+ % процент'],['-%','− % процент'],['=','= взять значение']];
 var OPK={x:'×', '/':'÷', '+':'+', '-':'−', '+%':'+ %', '-%':'− %', '=':'='};
 
-function demoSteps(){return [
- {on:true,a:'src_MS',op:'=',b:'num',bnum:0,save:false,saveName:'',sid:'st1'},
- {on:true,a:'prev',op:'x',b:'m_nds',bnum:0,save:false,saveName:'',sid:'st2'},
- {on:true,a:'prev',op:'x',b:'m_upak',bnum:0,save:true,saveName:'МС с НДС нов. С упак',sid:'st3'},
- {on:true,a:'src_SO',op:'=',b:'num',bnum:0,save:false,saveName:'',sid:'st4'},
- {on:true,a:'prev',op:'x',b:'m_office',bnum:0,save:false,saveName:'',sid:'st5'},
- {on:true,a:'prev',op:'x',b:'m_nalogi',bnum:0,save:true,saveName:'ФЗП',sid:'st6'},
- {on:true,a:'prev',op:'x',b:'m_otch',bnum:0,save:true,saveName:'ТЗ',sid:'st7'},
- {on:true,a:'i_st3',op:'=',b:'num',bnum:0,save:false,saveName:'',sid:'st8'},
- {on:true,a:'prev',op:'+',b:'i_st7',bnum:0,save:true,saveName:'Себ.без ЦП',sid:'st9'},
- {on:true,a:'prev',op:'/',b:'d_nds',bnum:0,save:false,saveName:'',sid:'st10'},
- {on:true,a:'prev',op:'x',b:'m_tp',bnum:0,save:false,saveName:'',sid:'st11'},
- {on:true,a:'prev',op:'x',b:'m_pr',bnum:0,save:false,saveName:'',sid:'st12'},
- {on:true,a:'prev',op:'+',b:'s_box',bnum:0,save:false,saveName:'',sid:'st13'},
- {on:true,a:'prev',op:'+%',b:'p_bonus',bnum:0,save:false,saveName:'',sid:'st14'}
-];}
-
+/* Чистое состояние: все значения по нулям, шагов нет */
 function defState(){return {
- src:{PS:5060,RT:5.75,PRICE:300,NDS:1.22,MS:5562,SO:1415,BC:0},
- mult:{upak:1.05,nds:1.22,log:1,nalogi:1.39,otch:1.25,office:1.3,tp:1.2,cross:1,pr:2.5,custom:1},
- div:{nds:1.22,custom:1},
- sum:{pallet:0,box:-2500,delivery:0,custom:0},
- pct:{logb:0,fakt:0,expo:0,bonus:2,transp:0,custom:0},
- steps:demoSteps(), inter:[], mcLog:[], nextNum:1, ratioId:'', scen:'',
+ src:{PS:0,RT:0,PRICE:0,NDS:0,MS:0,SO:0,BC:0},
+ mult:{upak:0,nds:0,log:0,nalogi:0,otch:0,office:0,tp:0,cross:0,pr:0,custom:0},
+ div:{nds:0,custom:0},
+ sum:{pallet:0,box:0,delivery:0,custom:0},
+ pct:{logb:0,fakt:0,expo:0,bonus:0,transp:0,custom:0},
+ steps:[], inter:[], mcLog:[], nextNum:1, ratioId:'',
  lastHist:[], lastItog:null
 };}
 
@@ -174,7 +157,6 @@ var S=null;
 function num(v){v=parseFloat(v);return isNaN(v)?0:v;}
 function fmt2(x){if(x===undefined||x===null||isNaN(x))return '—';return (Math.round(x*100)/100).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function saveCur(){try{localStorage.setItem('kc_cur',JSON.stringify(S));}catch(e){}}
 
 function opts(list,sel){var h='';for(var i=0;i<list.length;i++){h+='<option value="'+list[i][0]+'"'+(list[i][0]===sel?' selected':'')+'>'+esc(list[i][1])+'</option>';}return h;}
 function opts2(list,pref,sel){var l=[];for(var i=0;i<list.length;i++){l.push([pref+list[i][0],list[i][1]]);}return opts(l,sel);}
@@ -187,10 +169,10 @@ function optsA(sel){
 }
 function optsB(sel){
  var h='';
- h+='<optgroup label="Множители (×)">'+opts2(MULT,'m_',sel)+'</optgroup>';
- h+='<optgroup label="Делители (÷)">'+opts2(DIV,'d_',sel)+'</optgroup>';
- h+='<optgroup label="Суммы (+)">'+opts2(SUM,'s_',sel)+'</optgroup>';
- h+='<optgroup label="Проценты (+ %)">'+opts2(PCT,'p_',sel)+'</optgroup>';
+ h+='<optgroup label="Умножить на коэффициент">'+opts2(MULT,'m_',sel)+'</optgroup>';
+ h+='<optgroup label="Разделить на коэффициент">'+opts2(DIV,'d_',sel)+'</optgroup>';
+ h+='<optgroup label="Наценка в руб.">'+opts2(SUM,'s_',sel)+'</optgroup>';
+ h+='<optgroup label="Наценка в %">'+opts2(PCT,'p_',sel)+'</optgroup>';
  h+='<optgroup label="Исходные данные">'+opts2(SRC,'src_',sel)+'</optgroup>';
  if(S.inter.length){var iv=[];for(var i=0;i<S.inter.length;i++){iv.push(['i_'+S.inter[i].id,S.inter[i].name+' ('+fmt2(S.inter[i].value)+')']);}h+='<optgroup label="Промежуточные значения">'+opts(iv,sel)+'</optgroup>';}
  h+='<option value="num"'+(sel==='num'?' selected':'')+'>Число…</option>';
@@ -257,25 +239,20 @@ function renderInter(){
  rs.innerHTML=h2;
  updRatio();
 }
-function renderScenSel(){
- var rs=document.getElementById('scenSel');var all={};
- try{all=JSON.parse(localStorage.getItem('kc_list')||'{}');}catch(e){}
- var h='<option value="">— сценарий —</option>';
- for(var k in all){h+='<option value="'+esc(k)+'"'+(k===S.scen?' selected':'')+'>'+esc(k)+'</option>';}
- rs.innerHTML=h;
-}
 function renderHist(){
  var tb=document.getElementById('histBody');var h='';
  var hist=S.lastHist||[];
  for(var i=0;i<hist.length;i++){var r=hist[i];
   h+='<tr><td>'+(r[0]===''?'—':r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td class="num">'+esc(r[3])+'</td><td class="num">'+esc(r[4])+'</td></tr>';
  }
- if(S.lastItog!==null&&S.lastItog!==undefined){h+='<tr><th></th><th colspan="4" style="text-align:right">Итог:</th><th class="num">'+fmt2(S.lastItog)+'</th></tr>';}
+ if(S.lastItog!==null&&S.lastItog!==undefined){
+  h+='<tr><td></td><td colspan="3" style="text-align:right;font-weight:700">Итог:</td><td class="num" style="font-weight:700">'+fmt2(S.lastItog)+'</td></tr>';
+ }
  tb.innerHTML=h;
  var ib=document.getElementById('itogBox');
  ib.textContent=(S.lastItog===null||S.lastItog===undefined)?'':'Итог: '+fmt2(S.lastItog)+' руб.';
 }
-function renderAll(){renderStatic();renderSteps();renderInter();renderScenSel();renderHist();}
+function renderAll(){renderStatic();renderSteps();renderInter();renderHist();}
 
 /* --- действия --- */
 function writeMS(){
@@ -284,22 +261,22 @@ function writeMS(){
  S.src.MS=v;
  document.getElementById('src_MS').value=v;
  S.mcLog.push({val:v,formula:'(ПС + РТ × Цена м.пог.) / НДС, К = ('+fmt2(S.src.PS)+' + '+fmt2(S.src.RT)+'×'+fmt2(S.src.PRICE)+') / '+fmt2(S.src.NDS)+' = '+fmt2(v)});
- saveCur();toast('МС записано как исходное данное: '+fmt2(v)+' руб.');
+ toast('МС записано как исходное данное: '+fmt2(v)+' руб.');
  if(S.lastHist)renderHist();
 }
-function setNum(gr,id,el){S[gr][id]=num(String(el.value).replace(',','.'));saveCur();}
-function addStep(){S.steps.push({on:true,a:'prev',op:'x',b:'num',bnum:0,save:false,saveName:'',sid:'st'+Date.now()});saveCur();renderSteps();}
-function togStep(i){S.steps[i].on=!S.steps[i].on;saveCur();}
-function setStep(i,k,v){S.steps[i][k]=v;saveCur();if(k==='a')renderSteps();}
-function setBnum(i,el){S.steps[i].bnum=num(String(el.value).replace(',','.'));saveCur();}
-function togSave(i){var st=S.steps[i];st.save=!st.save;if(st.save&&!st.saveName){st.saveName='Промежуточный '+(S.nextNum++);}saveCur();renderSteps();}
-function setSaveName(i,el){S.steps[i].saveName=el.value;saveCur();}
-function moveStep(i,d){var j=i+d;if(j<0||j>=S.steps.length)return;var t=S.steps[i];S.steps[i]=S.steps[j];S.steps[j]=t;saveCur();renderSteps();}
-function delStep(i){S.steps.splice(i,1);saveCur();renderSteps();}
-function addManualInter(){S.inter.push({id:'u'+Date.now(),name:'Значение '+(S.inter.length+1),value:0,manual:true});saveCur();renderInter();renderSteps();}
-function renInter(i,el){S.inter[i].name=el.value||S.inter[i].name;saveCur();renderAll();}
-function setInterVal(i,el){S.inter[i].value=num(String(el.value).replace(',','.'));saveCur();renderInter();}
-function delInter(i){S.inter.splice(i,1);saveCur();renderAll();}
+function setNum(gr,id,el){S[gr][id]=num(String(el.value).replace(',','.'));}
+function addStep(){S.steps.push({on:true,a:'prev',op:'x',b:'num',bnum:0,save:false,saveName:'',sid:'st'+Date.now()});renderSteps();}
+function togStep(i){S.steps[i].on=!S.steps[i].on;}
+function setStep(i,k,v){S.steps[i][k]=v;if(k==='a')renderSteps();}
+function setBnum(i,el){S.steps[i].bnum=num(String(el.value).replace(',','.'));}
+function togSave(i){var st=S.steps[i];st.save=!st.save;if(st.save&&!st.saveName){st.saveName='Промежуточный '+(S.nextNum++);}renderSteps();}
+function setSaveName(i,el){S.steps[i].saveName=el.value;}
+function moveStep(i,d){var j=i+d;if(j<0||j>=S.steps.length)return;var t=S.steps[i];S.steps[i]=S.steps[j];S.steps[j]=t;renderSteps();}
+function delStep(i){S.steps.splice(i,1);renderSteps();}
+function addManualInter(){S.inter.push({id:'u'+Date.now(),name:'Значение '+(S.inter.length+1),value:0,manual:true});renderInter();renderSteps();}
+function renInter(i,el){S.inter[i].name=el.value||S.inter[i].name;renderAll();}
+function setInterVal(i,el){S.inter[i].value=num(String(el.value).replace(',','.'));renderInter();}
+function delInter(i){S.inter.splice(i,1);renderAll();}
 
 function calc(){
  var run=0;var hist=[];
@@ -330,7 +307,7 @@ function calc(){
   }
  }
  S.lastHist=hist;S.lastItog=run;
- saveCur();renderAll();updRatio();
+ renderAll();updRatio();
  toast('Расчёт выполнен. Итог: '+fmt2(run)+' руб.');
 }
 function updRatio(){
@@ -341,39 +318,23 @@ function updRatio(){
  if(itog===null||itog===undefined){el.textContent='— сначала рассчитайте итог';return;}
  el.textContent='Итог '+fmt2(itog)+' / '+labelOf('i_'+S.ratioId,null)+' '+fmt2(v)+' = '+(v!==0?(itog/v).toFixed(2):'—');
 }
-function saveScen(){
- var nm=prompt('Название сценария:',S.scen||'');
- if(!nm)return;S.scen=nm;
- var all={};try{all=JSON.parse(localStorage.getItem('kc_list')||'{}');}catch(e){}
- all[nm]=S;localStorage.setItem('kc_list',JSON.stringify(all));
- saveCur();renderScenSel();toast('Сценарий «'+nm+'» сохранён');
-}
-function loadScen(){
- var all={};try{all=JSON.parse(localStorage.getItem('kc_list')||'{}');}catch(e){}
- var sel=document.getElementById('scenSel').value;
- if(!sel||!all[sel]){toast('Выберите сценарий в списке');return;}
- S=all[sel];saveCur();renderAll();toast('Сценарий «'+sel+'» загружен');
-}
 function exportJSON(){
  var data=JSON.stringify(S,null,2);
  var blob=new Blob([data],{type:'application/json'});
  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
- a.download='konstruktor_'+(S.scen||'сценарий')+'.json';a.click();
+ a.download='konstruktor_расчет.json';a.click();
 }
 function importJSON(inp){
  var f=inp.files[0];if(!f)return;
  var r=new FileReader();
- r.onload=function(){try{S=JSON.parse(r.result);if(!S.steps)S=defState();saveCur();renderAll();toast('JSON загружен');}catch(e){toast('Не удалось прочитать файл');}};
+ r.onload=function(){try{S=JSON.parse(r.result);if(!S.steps)S=defState();renderAll();toast('JSON загружен');}catch(e){toast('Не удалось прочитать файл');}};
  r.readAsText(f);
 }
 
-/* --- запуск --- */
+/* --- запуск: всегда чистое состояние --- */
 (function(){
- var saved=null;
- try{saved=JSON.parse(localStorage.getItem('kc_cur'));}catch(e){}
- if(saved&&saved.steps){S=saved;}else{S=defState();}
+ S=defState();
  renderAll();
- if(saved)toast('Восстановлено последнее состояние страницы');
 })();
 </script>
 </body>
